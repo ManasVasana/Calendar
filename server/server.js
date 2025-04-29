@@ -6,13 +6,15 @@ const bcrypt = require('bcrypt'); // For hashing passwords
 
 app.use(cors());
 app.use(express.json());
+require('dotenv').config();
+
 
 const db = mysql.createConnection({
-    host: 'mysql-b786-manas.l.aivencloud.com',        // e.g., mysql-xxxxx.aivencloud.com
-    user: 'avnadmin',         // e.g., avnadmin
-    password: 'AVNS_fT03HJSR9oupuj1DBHr',     // e.g., your-Aiven-password
-    database: 'calendar',// e.g., defaultdb
-    port: 12263,                    // Default MySQL port
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,                // Default MySQL port
     ssl: {
         rejectUnauthorized: false  // SSL configuration required for Aiven
     }
