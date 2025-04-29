@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"; // <-- Import FontAwesomeIcon

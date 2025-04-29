@@ -10,7 +10,7 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:1000/Login", {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/Login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
