@@ -56,7 +56,6 @@ function SignUp() {
           // Handle conflict: username already exists
           setErrors((prev) => ({ ...prev, username: err.response.data.message || "Username already exists." }));
         } else if (err.response.data?.error) {
-          // Handle other known server errors
           setErrors((prev) => ({ ...prev, username: err.response.data.error }));
         } else {
           alert("Server error. Please try again later.");
@@ -112,7 +111,7 @@ function SignUp() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="text-cyan-400 hover:text-cyan-500 ml-2"
+                    className="text-cyan-400 hover:cursor-pointer hover:text-cyan-500 ml-2"
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
@@ -124,7 +123,7 @@ function SignUp() {
             </div>
 
             <button
-              className="w-full bg-cyan-400 hover:bg-cyan-500 text-white font-bold py-3 rounded-full transition duration-300 shadow-lg"
+              className="w-full bg-cyan-400 hover:bg-cyan-500 hover:cursor-pointer text-white font-bold py-3 rounded-full transition duration-300 shadow-lg"
               type="submit"
             >
               Sign Up

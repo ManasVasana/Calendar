@@ -14,9 +14,9 @@ const db = mysql.createConnection({
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,                // Default MySQL port
+  database: process.env.DB_NAME,                
     ssl: {
-        rejectUnauthorized: false  // SSL configuration required for Aiven
+        rejectUnauthorized: false  
     }
   });
 
@@ -26,6 +26,91 @@ app.use(express.json());
 app.listen(1000, () => {
   console.log('Server is running on port 1000');
 });
+
+app.delete('/DeleteEvent/:eventId', (req, res) => {
+  const eventId = req.params.eventId;
+  const deleteEventQuery = "DELETE FROM events WHERE id = ?";
+
+  db.query(deleteEventQuery, [eventId], (err, result) => {
+    if (err) {
+      console.error("Error deleting event:", err);
+      return res.status(500).json({ message: "Database error while deleting event." });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Event not found." });
+    }
+
+    res.status(200).json({ message: "Event deleted successfully." });
+  });
+});
+
+
+app.get('/GetEvents/:username', (req, res) => {
+  const username = req.params.username;
+
+  const getUserQuery = "SELECT id FROM users WHERE username = ?";
+  db.query(getUserQuery, [username], (err, userResult) => {
+    if (err) return res.status(500).json({ message: "DB error (user lookup)" });
+    if (userResult.length === 0) return res.status(404).json({ message: "User not found" });
+
+    const userId = userResult[0].id;
+
+    const getEventsQuery = `
+      SELECT id, user_id, event_title, event_date, start_time, end_time
+      FROM events
+      WHERE user_id = ?
+      ORDER BY event_date ASC, start_time ASC
+    `;
+    db.query(getEventsQuery, [userId], (err, eventsResult) => {
+      if (err) return res.status(500).json({ message: "DB error (events lookup)" });
+      return res.status(200).json(eventsResult);
+    });
+  });
+});
+
+app.post("/Events", (req, res) => {
+  const { username, title, date, startTime, endTime } = req.body;
+
+  if (!title || !date || startTime === undefined || endTime === undefined || !username) {
+    return res.status(400).json({ message: "Title, date, start time, end time, and username are required." });
+  }
+
+  if (startTime < 0 || startTime > 24 || endTime < 0 || endTime > 24) {
+    return res.status(400).json({ message: "Start and end times must be between 0 and 24." });
+  }
+
+  const getUserQuery = "SELECT id FROM users WHERE username = ?";
+  db.query(getUserQuery, [username], (err, userResult) => {
+    if (err) return res.status(500).json({ message: "Database error (user lookup)" });
+    if (userResult.length === 0) return res.status(404).json({ message: "User not found" });
+
+    const userId = userResult[0].id;
+
+    const insertEventQuery = `
+      INSERT INTO events (user_id, event_title, event_date, start_time, end_time)
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    db.query(insertEventQuery, [userId, title, date, startTime, endTime], (err, result) => {
+      if (err) {
+        console.error("Error inserting event:", err);
+        return res.status(500).json({ message: "Database error while inserting event." });
+      }
+
+      res.status(201).json({
+        event_id: result.insertId,
+        user_id: userId,
+        username,
+        title,
+        date,
+        startTime,
+        endTime,
+      });
+    });
+  });
+});
+
+
 
 app.post('/Login', (req, res) => {
     const { username, password} = req.body;
@@ -39,7 +124,7 @@ app.post('/Login', (req, res) => {
       }
   
       const user = results[0];
-      const match = await bcrypt.compare(password, user.password); // assuming password is hashed
+      const match = await bcrypt.compare(password, user.password); 
   
       if (!match) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -54,9 +139,7 @@ app.post('/Login', (req, res) => {
   app.post('/SignUp', async (req, res) => {
     const { username, password_hash } = req.body;
 
-  
     try {
-      // Check if username already exists
       const checkUserQuery = 'SELECT * FROM users WHERE username = ?';
       db.query(checkUserQuery, [username], async (err, results) => {
         if (err) {
@@ -68,7 +151,6 @@ app.post('/Login', (req, res) => {
           return res.status(409).json({ message: 'Username already exists. Please choose another one.' });
         }
   
-        // Proceed with hashing and inserting
         const hashedPassword = await bcrypt.hash(password_hash, 10);
         const insertQuery = `
           INSERT INTO users (username, password)

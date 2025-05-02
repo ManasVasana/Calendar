@@ -23,7 +23,8 @@ function Login() {
   
       const result = await response.json();
   
-      if (response.status === 200) {     
+      if (response.status === 200) {    
+        localStorage.setItem("username", result.username); 
         navigate("/MainPage");
       } else {
         alert("Invalid credentials");
@@ -43,7 +44,7 @@ function Login() {
               <div className="bg-gray-700 w-full md:w-2/5 p-8">
             <h1 className="text-4xl font-bold text-cyan-400 mb-6">Calendar</h1>
             <p className="text-white mb-8">
-              Empower your educational journey with our state-of-the-art class management platform
+            Plan, access, and manage your events effortlessly with a secure and intelligent timetable system
             </p>
             <div className="space-y-4">
               <div className="flex items-center text-cyan-400">
@@ -78,7 +79,7 @@ function Login() {
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   ></path>
                 </svg>
-                <span className="text-white">Time-saving automation</span>
+                <span className="text-white">Timely Reminders & Alerts</span>
               </div>
               <div className="flex items-center text-cyan-400">
                 <svg
@@ -95,7 +96,7 @@ function Login() {
                     d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
                   ></path>
                 </svg>
-                <span className="text-white">Comprehensive analytics</span>
+                <span className="text-white">Structured Daily Timetable</span>
               </div>
               <div className="flex items-center text-cyan-400">
                 <svg
@@ -156,7 +157,7 @@ function Login() {
               </div>
               <button
                 onClick={() => handleLogin()}
-                className="w-full py-2 border-none bg-cyan-400 hover:bg-cyan-500 text-gray-900 hover:scale-105 rounded-lg font-semibold transition duration-300 transform"
+                className="w-full py-2 border-none hover:cursor-pointer bg-cyan-400 hover:bg-cyan-500 text-gray-900 hover:scale-105 rounded-lg font-semibold transition duration-300 transform"
               >
                 Login
               </button>
@@ -165,7 +166,7 @@ function Login() {
               <p className="text-gray-400">Don't have an account?</p>
               <a
                 onClick={() => navigate("/SignUp")}
-                className="text-cyan-400 hover:text-cyan-500 transition duration-300 inline-block relative group"
+                className="text-cyan-400 hover:text-cyan-500 hover:cursor-pointer transition duration-300 inline-block relative group"
               >
                 SignUp
                 <span className="absolute left-0 bottom-0 w-full h-0.5 bg-cyan-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
