@@ -65,7 +65,7 @@ function Mainpage() {
 
   const deleteEvent = async (event_id) => {
     try {
-      const res = await fetch(`http://localhost:1000/DeleteEvent/${event_id}`, {
+      const res = await fetch(`https://calendar-backend-an3x.onrender.com/DeleteEvent/${event_id}`, {
         method: "DELETE",
       });
 
@@ -116,7 +116,7 @@ function Mainpage() {
   }, [selectedDate, events]);
 
   const fetchEvents = (uname) => {
-    fetch(`http://localhost:1000/GetEvents/${uname}`)
+    fetch(`https://calendar-backend-an3x.onrender.com/GetEvents/${uname}`)
       .then((res) => res.json())
       .then((data) => {
         // Format the event_date field for each event
@@ -150,7 +150,7 @@ function Mainpage() {
     };
 
     try {
-      const res = await fetch("http://localhost:1000/Events", {
+      const res = await fetch("https://calendar-backend-an3x.onrender.com/Events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
