@@ -27,11 +27,11 @@ app.listen(1000, () => {
   console.log('Server is running on port 1000');
 });
 
-app.delete('/DeleteEvent/:eventId', (req, res) => {
-  const eventId = req.params.eventId;
+app.delete('/DeleteEvent/:event_id', (req, res) => {
+  const event_id = req.params.event_id;
   const deleteEventQuery = "DELETE FROM events WHERE id = ?";
 
-  db.query(deleteEventQuery, [eventId], (err, result) => {
+  db.query(deleteEventQuery, [event_id], (err, result) => {
     if (err) {
       console.error("Error deleting event:", err);
       return res.status(500).json({ message: "Database error while deleting event." });
@@ -70,13 +70,13 @@ app.get('/GetEvents/:username', (req, res) => {
 });
 
 app.post("/Events", (req, res) => {
-  const { username, title, date, startTime, endTime } = req.body;
+  const { username, event_title, event_date, start_time, end_time } = req.body;
 
-  if (!title || !date || startTime === undefined || endTime === undefined || !username) {
-    return res.status(400).json({ message: "Title, date, start time, end time, and username are required." });
+  if (!event_title || !event_date || start_time === undefined || end_time === undefined || !username) {
+    return res.status(400).json({ message: "Title, event_date, start time, end time, and username are required." });
   }
 
-  if (startTime < 0 || startTime > 24 || endTime < 0 || endTime > 24) {
+  if (start_time < 0 || start_time > 24 || end_time < 0 || end_time > 24) {
     return res.status(400).json({ message: "Start and end times must be between 0 and 24." });
   }
 
@@ -91,20 +91,20 @@ app.post("/Events", (req, res) => {
       INSERT INTO events (user_id, event_title, event_date, start_time, end_time)
       VALUES (?, ?, ?, ?, ?)
     `;
-    db.query(insertEventQuery, [userId, title, date, startTime, endTime], (err, result) => {
+    db.query(insertEventQuery, [userId, event_title, event_date, start_time, end_time], (err, result) => {
       if (err) {
         console.error("Error inserting event:", err);
         return res.status(500).json({ message: "Database error while inserting event." });
       }
 
       res.status(201).json({
-        event_id: result.insertId,
+        id: result.insertId,
         user_id: userId,
         username,
-        title,
-        date,
-        startTime,
-        endTime,
+        event_title,
+        event_date,
+        start_time,
+        end_time,
       });
     });
   });

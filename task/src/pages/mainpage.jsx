@@ -20,6 +20,7 @@ import {
   endOfWeek,
   set,
 } from "date-fns";
+import { parseISO } from "date-fns";
 
 function Mainpage() {
   const navigate = useNavigate();
@@ -33,27 +34,6 @@ function Mainpage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [username, setusername] = useState(null);
   const [events, setEvents] = useState([]); // Store events
-
-  const events1 = [
-    {
-      title: "Google Online Technical Test",
-      startTime: "10:00",
-      endTime: "11:00",
-      color: "bg-yellow-100 border-yellow-400",
-    },
-    {
-      title: "Adobe PPT",
-      startTime: "12:00",
-      endTime: "13:00",
-      color: "bg-teal-100 border-teal-400",
-    },
-    {
-      title: "Extra Test Slot",
-      startTime: "11:15",
-      endTime: "11:45",
-      color: "bg-purple-100 border-purple-400",
-    },
-  ];
 
   const hours = Array.from({ length: 25 }, (_, i) => i); // 0 to 24
 
@@ -83,14 +63,14 @@ function Mainpage() {
     navigate("/");
   };
 
-  const deleteEvent = async (eventId) => {
+  const deleteEvent = async (event_id) => {
     try {
-      const res = await fetch(`http://localhost:1000/DeleteEvent/${eventId}`, {
+      const res = await fetch(`http://localhost:1000/DeleteEvent/${event_id}`, {
         method: "DELETE",
       });
 
       if (res.ok) {
-        setEvents((prev) => prev.filter((event) => event.id !== eventId));
+        setEvents((prev) => prev.filter((event) => event.id !== event_id));
       } else {
         const result = await res.json();
         alert(result.message || "Failed to delete event.");
@@ -118,10 +98,17 @@ function Mainpage() {
     if (!selectedDate || isNaN(selectedDate)) return;
 
     const today = format(selectedDate, "yyyy-MM-dd");
+    console.log("Selected date:", today);
 
     const filtered = events.filter((event) => {
-      const eventDate = new Date(event.event_date);
-      return format(eventDate, "yyyy-MM-dd") === today;
+      const eventDate = event.event_date;
+      console.log("Event date:", eventDate);
+      if (!eventDate) {
+        console.warn("Invalid event date:", event.event_date);
+        return false;
+      }
+
+      return eventDate === today;
     });
 
     console.log("Filtering for date:", today, filtered);
@@ -132,7 +119,14 @@ function Mainpage() {
     fetch(`http://localhost:1000/GetEvents/${uname}`)
       .then((res) => res.json())
       .then((data) => {
-        setEvents(data);
+        // Format the event_date field for each event
+        const formattedData = data.map((event) => ({
+          ...event,
+          event_date: format(new Date(event.event_date), "yyyy-MM-dd"), // Convert to yyyy-MM-dd
+        }));
+
+        setEvents(formattedData);
+        console.log("Fetched and formatted events:", formattedData);
       })
       .catch((err) => console.error("Failed to load events", err));
   };
@@ -148,11 +142,11 @@ function Mainpage() {
     }
 
     const payload = {
-      title: eventTitle,
-      date: format(selectedDate, "yyyy-MM-dd"),
-      startTime,
-      endTime,
       username: username,
+      event_title: eventTitle,
+      event_date: format(selectedDate, "yyyy-MM-dd"),
+      start_time: startTime,
+      end_time: endTime,
     };
 
     try {
@@ -165,34 +159,23 @@ function Mainpage() {
       });
 
       if (res.ok) {
+        console.log("Event created successfully:", payload);
         const newEvent = await res.json();
 
-        // Ensure the new event has the correct properties
-        const standardizedEvent = {
-          ...newEvent,
-          event_date: new Date(newEvent.date + "T00:00:00").toISOString(), // Convert date to ISO format
-          event_title: newEvent.title || eventTitle, // Ensure event_title is set
-          start_time: newEvent.startTime, // Ensure start_time is set
-          end_time: newEvent.endTime, // Ensure end_time is set
-        };
-        delete standardizedEvent.date;
-
-        // Update the events state
-        setEvents((prev) => {
-          const updatedEvents = [...prev, standardizedEvent];
-          return updatedEvents;
-        });
-
-        // Directly update filteredEvents for the selected date
+        setEvents((prevEvents) => [...prevEvents, newEvent]);
+        // Update filtered events for the selected date
         const today = format(selectedDate, "yyyy-MM-dd");
-        setFilteredEvents((prev) => {
-          const updatedFilteredEvents = [...prev, standardizedEvent].filter(
-            (event) =>
-              format(new Date(event.event_date), "yyyy-MM-dd") === today
-          );
-          return updatedFilteredEvents;
-        });
+        setFilteredEvents((prevFiltered) => [
+          ...prevFiltered,
+          {
+            ...newEvent,
+            event_date: today,
+            start_time: newEvent.startTime,
+            end_time: newEvent.endTime,
+          },
+        ]);
 
+        console.log("New event added:", newEvent);
         // Reset form fields
         setEventTitle("");
         setStartTime("");
@@ -206,6 +189,14 @@ function Mainpage() {
       alert("Something went wrong.");
     }
   };
+
+  useEffect(() => {
+    console.log("Updated events:", events);
+  }, [events]);
+
+  useEffect(() => {
+    console.log("Updated filtered events:", filteredEvents);
+  }, [filteredEvents]);
 
   const firstDayOfMonth = startOfMonth(currentMonth);
   const lastDayOfMonth = endOfMonth(currentMonth);
@@ -282,7 +273,7 @@ function Mainpage() {
             ))}
 
             {/* Events */}
-            {events.map((event, index) => {
+            {filteredEvents.map((event, index) => {
               const top = getTopOffset(event.start_time);
               const height = getHeight(event.start_time, event.end_time);
 
@@ -374,11 +365,6 @@ function Mainpage() {
                   }`}
                 >
                   {format(day, "d")}
-                  {/* Dot under date if event exists */}
-                  {events.filter((e) => e.date === format(day, "yyyy-MM-dd"))
-                    .length > 0 && (
-                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mx-auto mt-1"></div>
-                  )}
                 </div>
               ))}
             </div>
@@ -533,7 +519,7 @@ function Mainpage() {
             </form>
           </div>
         </div>
-      )}c
+      )}
     </div>
   );
 }
