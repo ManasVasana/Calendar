@@ -280,7 +280,7 @@ function Mainpage() {
               return (
                 <div
                   key={index}
-                  className={`absolute left-10 sm:left-20 w-[calc(100%-4rem)] sm:w-[calc(100%-6rem)] rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-gray-800 shadow-md border-l-4 flex justify-between items-start ${event.color}`}
+                  className={`absolute left-10 sm:left-20 w-[calc(100%-4rem)] sm:w-[calc(100%-6rem)] rounded-lg p-2 sm:p-3 text-xs sm:text-sm text-gray-800 shadow-md border-gray-800 border-l-4 bg-gray-400 flex justify-between items-start ${event.color}`}
                   style={{
                     top: `${top}px`,
                     height: `${height}px`,
@@ -289,7 +289,7 @@ function Mainpage() {
                   <div>
                     <div className="font-semibold">{event.event_title}</div>
                   </div>
-                  <div className="text-xs mt-1 text-gray-600">
+                  <div className="text-xs mt-1 font-semibold text-gray-800">
                     {event.start_time} - {event.end_time}
                   </div>
                 </div>
