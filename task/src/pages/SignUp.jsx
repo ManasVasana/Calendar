@@ -72,7 +72,7 @@ function SignUp() {
       <div className="w-full max-w-md">
         <div className="bg-gray-800 shadow-2xl rounded-3xl overflow-hidden">
           <h1 className="text-white bg-cyan-400 shadow-lg flex justify-center items-center text-3xl sm:text-4xl p-6 font-bold font-sans rounded-t-3xl">
-            Join ClassTracker
+            Sign Up
           </h1>
 
           <form className="p-8 space-y-6" onSubmit={handleSubmit}>
